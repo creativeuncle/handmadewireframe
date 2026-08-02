@@ -75,6 +75,9 @@ body {
   margin: 16px 0;
   overflow: hidden;
   cursor: default;
+  background-color: #fafafa;
+  background-image: radial-gradient(circle, #d6d6d6 1px, transparent 1px);
+  touch-action: none;
 }
 
 .canvas-wrap.tool-pencil {
@@ -87,6 +90,20 @@ body {
 
 .canvas-wrap.tool-text {
   cursor: text;
+}
+
+.canvas-wrap.tool-pan {
+  cursor: grab;
+}
+
+.canvas-wrap.tool-panning {
+  cursor: grabbing;
+}
+
+.canvas-content {
+  position: absolute;
+  inset: 0;
+  transform-origin: 0 0;
 }
 
 .draw-canvas {
@@ -102,6 +119,40 @@ body {
 
 .canvas-el {
   outline: none;
+}
+
+.zoom-control {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: 1.5px solid #1a1a1a;
+  border-radius: 8px;
+  background: #fff;
+  padding: 4px;
+}
+
+.zoom-control button {
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 1rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.zoom-control button:hover {
+  background: #f0f0f0;
+}
+
+.zoom-control .zoom-pct {
+  width: auto;
+  padding: 0 8px;
+  font-size: 0.85rem;
 }
 
 .canvas-el.selected .sketchy-rect path {
