@@ -390,6 +390,14 @@ body {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
+.flyout-panel.full-height {
+  position: fixed;
+  left: 76px;
+  top: 64px;
+  bottom: 8px;
+  max-height: none;
+}
+
 .color-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -722,6 +730,115 @@ body {
   background: #ddd;
 }
 
-.emoji-grid .emoji-btn {
-  font-size: 1.4rem;
+.emoji-flyout {
+  width: 260px;
+}
+
+.emoji-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1.5px solid #1a1a1a;
+  border-radius: 8px;
+  padding: 6px 10px;
+  color: #888;
+}
+
+.emoji-search input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: #1a1a1a;
+}
+
+.emoji-main-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1.5px solid #eee;
+  padding-bottom: 8px;
+}
+
+.emoji-main-tab {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.8rem;
+  padding: 6px 4px;
+  border-radius: 6px;
+  color: #666;
+  cursor: pointer;
+}
+
+.emoji-main-tab:hover {
+  background: #f3f3f3;
+}
+
+.emoji-main-tab.active {
+  background: #2563eb;
+  color: #fff;
+}
+
+.emoji-category-row {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+}
+
+.emoji-category-btn {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.emoji-category-btn:hover {
+  background: #f3f3f3;
+}
+
+.emoji-category-btn.active {
+  background: #eef2ff;
+  outline: 1.5px solid #2563eb;
+}
+
+.emoji-section-title {
+  font-size: 0.78rem;
+  color: #888;
+  margin-top: 4px;
+}
+
+.emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+}
+
+.emoji-item-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+.emoji-item-btn:hover {
+  background: #f3f3f3;
+}
+
+.emoji-item-btn.sticker-btn {
+  font-size: 1.6rem;
 }
