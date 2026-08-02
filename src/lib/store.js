@@ -86,11 +86,24 @@ export const useStore = create((set, get) => ({
     const id = nextId()
     const count = get().elements.length
     const cascade = (count % 8) * 24
+
+    let x, y
+    if (pos) {
+      x = pos.x
+      y = pos.y
+    } else {
+      const { pan, zoom } = get()
+      const centerX = (window.innerWidth / 2 - pan.x) / zoom
+      const centerY = (window.innerHeight / 2 - pan.y) / zoom
+      x = centerX - defaults.width / 2 + cascade
+      y = centerY - defaults.height / 2 + cascade
+    }
+
     const el = {
       id,
       type,
-      x: pos?.x ?? 340 + cascade,
-      y: pos?.y ?? 120 + cascade,
+      x,
+      y,
       width: defaults.width,
       height: defaults.height,
       text: defaults.text,
@@ -100,6 +113,10 @@ export const useStore = create((set, get) => ({
       letterSpacing: 0,
       fontWeight: 400,
       align: 'center',
+      color: '#1a1a1a',
+      highlight: null,
+      list: false,
+      link: null,
       locked: false,
       ...extra,
     }

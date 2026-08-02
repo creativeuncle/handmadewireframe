@@ -658,7 +658,6 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
-  border: 2px solid #1a1a1a;
   border-radius: 10px;
   padding: 6px 8px;
   background: #fff;
@@ -670,35 +669,21 @@ body {
 .floating-text-toolbar select {
   font-family: inherit;
   font-size: 0.85rem;
-  border: 1.5px solid #1a1a1a;
+  border: 1.5px solid #ddd;
   border-radius: 6px;
   padding: 4px 6px;
   background: #fff;
   max-width: 130px;
 }
 
-.font-size-stepper {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  border: 1.5px solid #1a1a1a;
-  border-radius: 6px;
-  padding: 2px 6px;
+.font-size-input {
+  width: 48px;
+  font-family: inherit;
   font-size: 0.85rem;
-}
-
-.stepper-arrows {
-  display: flex;
-  flex-direction: column;
-}
-
-.stepper-arrows button {
-  border: none;
-  background: transparent;
-  color: #1a1a1a;
-  cursor: pointer;
-  line-height: 0;
-  padding: 1px;
+  border: 1.5px solid #ddd;
+  border-radius: 6px;
+  padding: 4px 4px;
+  text-align: center;
 }
 
 .ftt-btn {
@@ -707,9 +692,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1.5px solid #1a1a1a;
+  border: none;
   border-radius: 6px;
-  background: #fff;
+  background: transparent;
   color: #1a1a1a;
   cursor: pointer;
 }
@@ -721,7 +706,68 @@ body {
 .ftt-btn.active {
   background: #2563eb;
   color: #fff;
-  border-color: #2563eb;
+}
+
+.ftt-popover-wrap {
+  position: relative;
+}
+
+.ftt-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  z-index: 30;
+}
+
+.ftt-link-popover {
+  display: flex;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.ftt-link-popover input {
+  font-family: inherit;
+  font-size: 0.85rem;
+  border: 1.5px solid #ddd;
+  border-radius: 6px;
+  padding: 4px 8px;
+  width: 180px;
+}
+
+.ftt-link-popover button {
+  border: none;
+  border-radius: 6px;
+  background: #2563eb;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+.color-swatch-none {
+  position: relative;
+  background: #fff;
+  border-style: dashed;
+}
+
+.color-swatch-none::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-top: 1.5px solid #e03131;
+  transform: rotate(45deg);
+}
+
+.el-list {
+  margin: 0;
+  padding-left: 18px;
+  text-align: left;
 }
 
 .ftt-divider {
