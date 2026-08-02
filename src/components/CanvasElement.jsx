@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { useStore } from '../lib/store'
 import SketchyRect from './SketchyRect'
 
@@ -7,27 +7,26 @@ const ROUNDED_TYPES = new Set(['button', 'card', 'image', 'video'])
 export default function CanvasElement({ el }) {
   const updateElement = useStore((s) => s.updateElement)
   const selectElement = useStore((s) => s.selectElement)
-  const deleteElement = useStore((s) => s.deleteElement)
   const selectedId = useStore((s) => s.selectedId)
   const activeTool = useStore((s) => s.activeTool)
-  const dragRef = useRef(null)
+  const textRef = useRef(null)
+  const [editing, setEditing] = useState(false)
 
   const isSelected = selectedId === el.id
   const canInteract = activeTool === 'select'
 
   const onPointerDown = (e) => {
-    if (!canInteract) return
+    if (!canInteract || editing) return
     e.stopPropagation()
     selectElement(el.id)
-    dragRef.current = { startX: e.clientX, startY: e.clientY, elX: el.x, elY: el.y }
+    const zoom = useStore.getState().zoom
+    const start = { startX: e.clientX, startY: e.clientY, elX: el.x, elY: el.y }
     const onMove = (ev) => {
-      if (!dragRef.current) return
-      const dx = ev.clientX - dragRef.current.startX
-      const dy = ev.clientY - dragRef.current.startY
-      updateElement(el.id, { x: dragRef.current.elX + dx, y: dragRef.current.elY + dy })
+      const dx = (ev.clientX - start.startX) / zoom
+      const dy = (ev.clientY - start.startY) / zoom
+      updateElement(el.id, { x: start.elX + dx, y: start.elY + dy })
     }
     const onUp = () => {
-      dragRef.current = null
       window.removeEventListener('pointermove', onMove)
       window.removeEventListener('pointerup', onUp)
     }
@@ -35,13 +34,24 @@ export default function CanvasElement({ el }) {
     window.addEventListener('pointerup', onUp)
   }
 
+  const onDoubleClick = (e) => {
+    if (!canInteract) return
+    e.stopPropagation()
+    setEditing(true)
+    requestAnimationFrame(() => {
+      textRef.current?.focus()
+      document.getSelection()?.selectAllChildren(textRef.current)
+    })
+  }
+
   const onResizePointerDown = (e) => {
     e.stopPropagation()
     e.preventDefault()
+    const zoom = useStore.getState().zoom
     const start = { startX: e.clientX, startY: e.clientY, w: el.width, h: el.height }
     const onMove = (ev) => {
-      const dx = ev.clientX - start.startX
-      const dy = ev.clientY - start.startY
+      const dx = (ev.clientX - start.startX) / zoom
+      const dy = (ev.clientY - start.startY) / zoom
       updateElement(el.id, {
         width: Math.max(40, start.w + dx),
         height: Math.max(28, start.h + dy),
@@ -55,17 +65,6 @@ export default function CanvasElement({ el }) {
     window.addEventListener('pointerup', onUp)
   }
 
-  const onKeyDown = (e) => {
-    if (e.key === 'Delete' || e.key === 'Backspace') {
-      if (document.activeElement !== textRef.current) {
-        e.preventDefault()
-        deleteElement(el.id)
-      }
-    }
-  }
-
-  const textRef = useRef(null)
-
   return (
     <div
       className={`canvas-el${isSelected ? ' selected' : ''}`}
@@ -75,20 +74,25 @@ export default function CanvasElement({ el }) {
         top: el.y,
         width: el.width,
         height: el.height,
-        cursor: canInteract ? 'move' : 'default',
+        cursor: canInteract ? (editing ? 'text' : 'move') : 'default',
       }}
       onPointerDown={onPointerDown}
-      onKeyDown={onKeyDown}
-      tabIndex={0}
+      onDoubleClick={onDoubleClick}
     >
       <SketchyRect width={el.width} height={el.height} seed={el.seed} rounded={ROUNDED_TYPES.has(el.type)} />
       <div
         ref={textRef}
         className="canvas-el-label"
-        contentEditable={canInteract}
+        contentEditable={editing}
         suppressContentEditableWarning
-        onPointerDown={(e) => e.stopPropagation()}
-        onBlur={(e) => updateElement(el.id, { text: e.currentTarget.textContent })}
+        onBlur={(e) => {
+          setEditing(false)
+          updateElement(el.id, { text: e.currentTarget.textContent })
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') e.currentTarget.blur()
+          e.stopPropagation()
+        }}
         style={{
           fontFamily: el.fontFamily,
           fontSize: el.fontSize,

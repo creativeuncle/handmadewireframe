@@ -25,6 +25,10 @@ const COMPONENT_DEFAULTS = {
   text: { width: 160, height: 32, text: 'Text' },
 }
 
+const MIN_ZOOM = 0.2
+const MAX_ZOOM = 4
+const clamp = (v, min, max) => Math.min(max, Math.max(min, v))
+
 export const useStore = create((set, get) => ({
   elements: [],
   selectedId: null,
@@ -32,6 +36,8 @@ export const useStore = create((set, get) => ({
   strokeWidth: 3,
   eraserSize: 24,
   strokes: [],
+  pan: { x: 0, y: 0 },
+  zoom: 1,
 
   addElement: (type, pos) => {
     const defaults = COMPONENT_DEFAULTS[type] ?? COMPONENT_DEFAULTS.text
@@ -79,4 +85,19 @@ export const useStore = create((set, get) => ({
 
   addStroke: (stroke) => set((s) => ({ strokes: [...s.strokes, stroke] })),
   clearStrokes: () => set({ strokes: [] }),
+
+  panBy: (dx, dy) => set((s) => ({ pan: { x: s.pan.x + dx, y: s.pan.y + dy } })),
+
+  zoomAtPoint: (factor, point) =>
+    set((s) => {
+      const newZoom = clamp(s.zoom * factor, MIN_ZOOM, MAX_ZOOM)
+      const contentX = (point.x - s.pan.x) / s.zoom
+      const contentY = (point.y - s.pan.y) / s.zoom
+      return {
+        zoom: newZoom,
+        pan: { x: point.x - contentX * newZoom, y: point.y - contentY * newZoom },
+      }
+    }),
+
+  resetView: () => set({ pan: { x: 0, y: 0 }, zoom: 1 }),
 }))
