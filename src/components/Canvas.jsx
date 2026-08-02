@@ -9,13 +9,18 @@ export default function Canvas() {
   const strokes = useStore((s) => s.strokes)
   const activeTool = useStore((s) => s.activeTool)
   const strokeWidth = useStore((s) => s.strokeWidth)
+  const strokeColor = useStore((s) => s.strokeColor)
   const eraserSize = useStore((s) => s.eraserSize)
   const addStroke = useStore((s) => s.addStroke)
   const addElement = useStore((s) => s.addElement)
   const selectElement = useStore((s) => s.selectElement)
+  const selectMultiple = useStore((s) => s.selectMultiple)
   const setActiveTool = useStore((s) => s.setActiveTool)
-  const selectedId = useStore((s) => s.selectedId)
-  const deleteElement = useStore((s) => s.deleteElement)
+  const deleteSelection = useStore((s) => s.deleteSelection)
+  const undo = useStore((s) => s.undo)
+  const copySelection = useStore((s) => s.copySelection)
+  const pasteClipboard = useStore((s) => s.pasteClipboard)
+  const closeFlyout = useStore((s) => s.closeFlyout)
   const pan = useStore((s) => s.pan)
   const zoom = useStore((s) => s.zoom)
   const panBy = useStore((s) => s.panBy)
@@ -24,6 +29,7 @@ export default function Canvas() {
 
   const [spacePressed, setSpacePressed] = useState(false)
   const [isPanning, setIsPanning] = useState(false)
+  const [marquee, setMarquee] = useState(null)
 
   const canvasRef = useRef(null)
   const ctxRef = useRef(null)
@@ -31,20 +37,34 @@ export default function Canvas() {
   const drawingRef = useRef(null)
   const panRef = useRef(null)
 
-  // space-to-pan + delete key
+  // keyboard shortcuts: space-to-pan, delete, undo, copy, paste
   useEffect(() => {
     const isTyping = () => {
       const el = document.activeElement
       return el && (el.isContentEditable || el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT')
     }
     const onKeyDown = (e) => {
-      if (e.code === 'Space' && !isTyping()) {
+      if (isTyping()) return
+      if (e.code === 'Space') {
         e.preventDefault()
         setSpacePressed(true)
+        return
       }
-      if ((e.key === 'Delete' || e.key === 'Backspace') && !isTyping() && useStore.getState().selectedId) {
+      if (e.key === 'Delete' || e.key === 'Backspace') {
         e.preventDefault()
-        deleteElement(useStore.getState().selectedId)
+        deleteSelection()
+        return
+      }
+      const mod = e.metaKey || e.ctrlKey
+      if (mod && e.key.toLowerCase() === 'z') {
+        e.preventDefault()
+        undo()
+      } else if (mod && e.key.toLowerCase() === 'c') {
+        e.preventDefault()
+        copySelection()
+      } else if (mod && e.key.toLowerCase() === 'v') {
+        e.preventDefault()
+        pasteClipboard()
       }
     }
     const onKeyUp = (e) => {
@@ -56,7 +76,7 @@ export default function Canvas() {
       window.removeEventListener('keydown', onKeyDown)
       window.removeEventListener('keyup', onKeyUp)
     }
-  }, [deleteElement])
+  }, [deleteSelection, undo, copySelection, pasteClipboard])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -93,7 +113,7 @@ export default function Canvas() {
     if (stroke.points.length < 2) return
     ctx.save()
     ctx.globalCompositeOperation = stroke.mode === 'eraser' ? 'destination-out' : 'source-over'
-    ctx.strokeStyle = '#1f1f1f'
+    ctx.strokeStyle = stroke.color ?? '#1f1f1f'
     ctx.lineWidth = stroke.size
     ctx.lineCap = 'round'
     ctx.lineJoin = 'round'
@@ -147,19 +167,55 @@ export default function Canvas() {
     }
 
     if (activeTool === 'select') {
+      closeFlyout()
+      const rect = wrapRef.current.getBoundingClientRect()
+      const start = { x: e.clientX - rect.left, y: e.clientY - rect.top }
       selectElement(null)
+
+      const onMove = (ev) => {
+        const current = { x: ev.clientX - rect.left, y: ev.clientY - rect.top }
+        setMarquee({
+          x: Math.min(start.x, current.x),
+          y: Math.min(start.y, current.y),
+          w: Math.abs(current.x - start.x),
+          h: Math.abs(current.y - start.y),
+        })
+      }
+      const onUp = (ev) => {
+        const current = { x: ev.clientX - rect.left, y: ev.clientY - rect.top }
+        const x1 = Math.min(start.x, current.x)
+        const y1 = Math.min(start.y, current.y)
+        const x2 = Math.max(start.x, current.x)
+        const y2 = Math.max(start.y, current.y)
+        if (x2 - x1 > 4 || y2 - y1 > 4) {
+          const c1 = { x: (x1 - pan.x) / zoom, y: (y1 - pan.y) / zoom }
+          const c2 = { x: (x2 - pan.x) / zoom, y: (y2 - pan.y) / zoom }
+          const hits = useStore
+            .getState()
+            .elements.filter(
+              (el) => !el.locked && el.x < c2.x && el.x + el.width > c1.x && el.y < c2.y && el.y + el.height > c1.y,
+            )
+            .map((el) => el.id)
+          selectMultiple(hits)
+        }
+        setMarquee(null)
+        window.removeEventListener('pointermove', onMove)
+        window.removeEventListener('pointerup', onUp)
+      }
+      window.addEventListener('pointermove', onMove)
+      window.addEventListener('pointerup', onUp)
       return
     }
-    if (activeTool === 'text') {
+    if (activeTool === 'text' || activeTool === 'comment') {
       const pos = toContent(e.clientX, e.clientY)
-      addElement('text', pos)
+      addElement(activeTool, pos)
       setActiveTool('select')
       return
     }
     if (activeTool === 'pencil' || activeTool === 'eraser') {
       const pos = toContent(e.clientX, e.clientY)
       const size = activeTool === 'eraser' ? eraserSize : strokeWidth
-      drawingRef.current = { mode: activeTool, size, points: [pos] }
+      drawingRef.current = { mode: activeTool, size, color: strokeColor, points: [pos] }
       const ctx = ctxRef.current
 
       const onMove = (ev) => {
@@ -189,7 +245,7 @@ export default function Canvas() {
       ? 'tool-pencil'
       : activeTool === 'eraser'
         ? 'tool-eraser'
-        : activeTool === 'text'
+        : activeTool === 'text' || activeTool === 'comment'
           ? 'tool-text'
           : ''
 
@@ -217,6 +273,13 @@ export default function Canvas() {
         ))}
       </div>
       <canvas ref={canvasRef} className="draw-canvas" />
+
+      {marquee && (
+        <div
+          className="marquee-box"
+          style={{ left: marquee.x, top: marquee.y, width: marquee.w, height: marquee.h }}
+        />
+      )}
 
       <div className="zoom-control">
         <button onClick={() => zoomAtPoint(0.83, centerPoint(wrapRef))}>−</button>

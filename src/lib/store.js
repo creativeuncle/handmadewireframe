@@ -4,13 +4,24 @@ let idCounter = 1
 const nextId = () => `el_${idCounter++}`
 
 export const GOOGLE_FONTS = [
+  'Patrick Hand',
   'Kalam',
   'Caveat',
-  'Patrick Hand',
   'Architects Daughter',
   'Indie Flower',
   'Shadows Into Light',
   'Inter',
+]
+
+export const STROKE_COLORS = [
+  '#1a1a1a',
+  '#e03131',
+  '#2f9e44',
+  '#1971c2',
+  '#f08c00',
+  '#9c36b5',
+  '#495057',
+  '#ffffff',
 ]
 
 const COMPONENT_DEFAULTS = {
@@ -36,23 +47,41 @@ const COMPONENT_DEFAULTS = {
   'shape-square': { width: 120, height: 120, text: '' },
   'shape-ellipse': { width: 140, height: 100, text: '' },
   'shape-triangle': { width: 130, height: 110, text: '' },
+  emoji: { width: 64, height: 64, text: '😀' },
+  comment: { width: 200, height: 64, text: 'Comment' },
 }
 
 const MIN_ZOOM = 0.2
 const MAX_ZOOM = 4
 const clamp = (v, min, max) => Math.min(max, Math.max(min, v))
+const MAX_HISTORY = 50
 
 export const useStore = create((set, get) => ({
   elements: [],
-  selectedId: null,
-  activeTool: 'select', // select | pencil | eraser | text
+  selectedIds: [],
+  activeTool: 'select', // select | pencil | eraser | text | comment
   strokeWidth: 3,
+  strokeColor: '#1a1a1a',
   eraserSize: 24,
   strokes: [],
   pan: { x: 0, y: 0 },
   zoom: 1,
+  openFlyout: null,
+  history: [],
+  clipboard: [],
 
-  addElement: (type, pos) => {
+  pushHistory: () =>
+    set((s) => ({ history: [...s.history.slice(-MAX_HISTORY + 1), s.elements] })),
+
+  undo: () =>
+    set((s) => {
+      if (s.history.length === 0) return s
+      const prev = s.history[s.history.length - 1]
+      return { elements: prev, history: s.history.slice(0, -1), selectedIds: [] }
+    }),
+
+  addElement: (type, pos, extra) => {
+    get().pushHistory()
     const defaults = COMPONENT_DEFAULTS[type] ?? COMPONENT_DEFAULTS.text
     const id = nextId()
     const count = get().elements.length
@@ -65,38 +94,108 @@ export const useStore = create((set, get) => ({
       width: defaults.width,
       height: defaults.height,
       text: defaults.text,
-      fontFamily: 'Kalam',
+      fontFamily: 'Patrick Hand',
       fontSize: 16,
       lineHeight: 1.4,
       letterSpacing: 0,
       fontWeight: 400,
       align: 'center',
+      locked: false,
+      ...extra,
     }
-    set((s) => ({ elements: [...s.elements, el], selectedId: id, activeTool: 'select' }))
+    set((s) => ({ elements: [...s.elements, el], selectedIds: [id], activeTool: 'select' }))
     return id
   },
 
-  updateElement: (id, patch) =>
+  updateElement: (id, patch, { skipHistory } = {}) => {
+    if (!skipHistory) get().pushHistory()
     set((s) => ({
       elements: s.elements.map((el) => (el.id === id ? { ...el, ...patch } : el)),
+    }))
+  },
+
+  moveSelectionBy: (dx, dy) =>
+    set((s) => ({
+      elements: s.elements.map((el) =>
+        s.selectedIds.includes(el.id) ? { ...el, x: el.x + dx, y: el.y + dy } : el,
+      ),
     })),
 
-  deleteElement: (id) =>
+  deleteElement: (id) => {
+    get().pushHistory()
     set((s) => ({
       elements: s.elements.filter((el) => el.id !== id),
-      selectedId: s.selectedId === id ? null : s.selectedId,
+      selectedIds: s.selectedIds.filter((sid) => sid !== id),
+    }))
+  },
+
+  deleteSelection: () => {
+    const { selectedIds } = get()
+    if (selectedIds.length === 0) return
+    get().pushHistory()
+    set((s) => ({
+      elements: s.elements.filter((el) => !s.selectedIds.includes(el.id)),
+      selectedIds: [],
+    }))
+  },
+
+  toggleLock: (id) =>
+    set((s) => ({
+      elements: s.elements.map((el) => (el.id === id ? { ...el, locked: !el.locked } : el)),
     })),
 
-  selectElement: (id) => set({ selectedId: id }),
+  moveLayerUp: (id) =>
+    set((s) => {
+      const i = s.elements.findIndex((el) => el.id === id)
+      if (i < 0 || i === s.elements.length - 1) return s
+      const elements = [...s.elements]
+      ;[elements[i], elements[i + 1]] = [elements[i + 1], elements[i]]
+      return { elements }
+    }),
+
+  moveLayerDown: (id) =>
+    set((s) => {
+      const i = s.elements.findIndex((el) => el.id === id)
+      if (i <= 0) return s
+      const elements = [...s.elements]
+      ;[elements[i], elements[i - 1]] = [elements[i - 1], elements[i]]
+      return { elements }
+    }),
+
+  selectElement: (id) => set({ selectedIds: id ? [id] : [] }),
+  selectMultiple: (ids) => set({ selectedIds: ids }),
+  clearSelection: () => set({ selectedIds: [] }),
+
+  copySelection: () =>
+    set((s) => ({
+      clipboard: s.elements.filter((el) => s.selectedIds.includes(el.id)).map((el) => ({ ...el })),
+    })),
+
+  pasteClipboard: () => {
+    const { clipboard } = get()
+    if (clipboard.length === 0) return
+    get().pushHistory()
+    const newIds = []
+    const pasted = clipboard.map((el) => {
+      const id = nextId()
+      newIds.push(id)
+      return { ...el, id, x: el.x + 24, y: el.y + 24 }
+    })
+    set((s) => ({ elements: [...s.elements, ...pasted], selectedIds: newIds }))
+  },
 
   setActiveTool: (tool) =>
-    set((s) => ({ activeTool: tool, selectedId: tool === 'select' ? s.selectedId : null })),
+    set((s) => ({ activeTool: tool, selectedIds: tool === 'select' ? s.selectedIds : [] })),
 
   setStrokeWidth: (v) => set({ strokeWidth: v }),
+  setStrokeColor: (v) => set({ strokeColor: v }),
   setEraserSize: (v) => set({ eraserSize: v }),
 
   addStroke: (stroke) => set((s) => ({ strokes: [...s.strokes, stroke] })),
   clearStrokes: () => set({ strokes: [] }),
+
+  setOpenFlyout: (name) => set((s) => ({ openFlyout: s.openFlyout === name ? null : name })),
+  closeFlyout: () => set({ openFlyout: null }),
 
   panBy: (dx, dy) => set((s) => ({ pan: { x: s.pan.x + dx, y: s.pan.y + dy } })),
 

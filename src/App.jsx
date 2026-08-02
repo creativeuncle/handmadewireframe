@@ -1,8 +1,8 @@
-import Sidebar from './components/Sidebar'
 import Canvas from './components/Canvas'
-import Toolbar from './components/Toolbar'
-import PropertiesPanel from './components/PropertiesPanel'
+import IconRail from './components/IconRail'
+import LayersPanel from './components/LayersPanel'
 import TopBar from './components/TopBar'
+import FloatingTextToolbar from './components/FloatingTextToolbar'
 import ProjectsPage from './components/ProjectsPage'
 import AutoSave from './components/AutoSave'
 import { useProjectsStore } from './lib/projectsStore'
@@ -19,9 +19,9 @@ function App() {
         <div className="app">
           <Canvas />
           <TopBar />
-          <Sidebar />
-          <Toolbar />
-          <PropertiesPanel />
+          <IconRail />
+          <LayersPanel />
+          <FloatingTextToolbar />
         </div>
       )}
     </>
