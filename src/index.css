@@ -221,10 +221,6 @@ body {
   font-size: 0.85rem;
 }
 
-.canvas-el.selected .sketchy-rect path {
-  stroke: #2563eb;
-}
-
 .canvas-el-label {
   position: relative;
   width: 100%;
