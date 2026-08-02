@@ -71,13 +71,11 @@ export default function ComponentsFlyout({ top }) {
       {activeTab === 'web' ? (
         <div className="component-grid">
           {COMPONENTS.map((c) => (
-            <button
-              key={c.type}
-              className="component-btn"
-              data-tooltip={c.label}
-              onClick={() => addElement(c.type)}
-            >
-              <HugeiconsIcon icon={c.icon} size={22} strokeWidth={1.6} />
+            <button key={c.type} className="component-btn" onClick={() => addElement(c.type)}>
+              <span className="component-icon-box">
+                <HugeiconsIcon icon={c.icon} size={20} strokeWidth={1.6} />
+              </span>
+              <span className="component-label">{c.label}</span>
             </button>
           ))}
         </div>

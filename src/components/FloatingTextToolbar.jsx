@@ -19,7 +19,7 @@ export default function FloatingTextToolbar() {
 
   if (activeTool !== 'select' || selectedIds.length !== 1) return null
   const el = elements.find((it) => it.id === selectedIds[0])
-  if (!el || el.locked) return null
+  if (!el || el.locked || el.type !== 'text') return null
 
   const left = pan.x + el.x * zoom + (el.width * zoom) / 2
   const top = pan.y + el.y * zoom - 52
