@@ -31,7 +31,6 @@ body {
   align-items: center;
   gap: 12px;
   padding: 0 12px;
-  border: 2px solid #1a1a1a;
   border-radius: 10px;
   background: #fff;
   z-index: 15;
@@ -88,7 +87,6 @@ body {
   top: 64px;
   bottom: 8px;
   width: 260px;
-  border: 2px solid #1a1a1a;
   border-radius: 10px;
   padding: 16px;
   overflow-y: auto;
@@ -285,10 +283,10 @@ body {
   display: flex;
   align-items: center;
   gap: 4px;
-  border: 1.5px solid #1a1a1a;
   border-radius: 8px;
   background: #fff;
   padding: 4px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
 }
 
 .zoom-control button {
@@ -338,17 +336,15 @@ body {
 
 .icon-rail {
   position: absolute;
-  top: 64px;
+  top: 50%;
   left: 8px;
-  bottom: 8px;
+  transform: translateY(-50%);
   width: 60px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   gap: 8px;
   padding: 10px 0;
-  border: 2px solid #1a1a1a;
   border-radius: 10px;
   background: #fff;
   z-index: 12;
@@ -376,7 +372,6 @@ body {
 .rail-btn.active {
   background: #2563eb;
   color: #fff;
-  border-color: #2563eb;
 }
 
 .flyout-panel {
@@ -388,17 +383,11 @@ body {
   min-width: 200px;
   max-height: calc(100vh - 96px);
   overflow-y: auto;
-  border: 2px solid #1a1a1a;
   border-radius: 10px;
   padding: 14px;
   background: #fff;
   z-index: 20;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-}
-
-.shapes-flyout {
-  flex-direction: row;
-  min-width: 0;
 }
 
 .color-grid {
