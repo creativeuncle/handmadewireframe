@@ -3,6 +3,7 @@ import { useStore } from '../lib/store'
 import SketchyRect from './SketchyRect'
 
 const ROUNDED_TYPES = new Set(['button', 'card', 'image', 'video', 'input', 'searchbar', 'popup'])
+const SHAPE_KIND = { 'shape-ellipse': 'ellipse', 'shape-triangle': 'triangle', 'shape-arrow': 'arrow', 'shape-square': 'rect' }
 
 export default function CanvasElement({ el }) {
   const updateElement = useStore((s) => s.updateElement)
@@ -79,7 +80,13 @@ export default function CanvasElement({ el }) {
       onPointerDown={onPointerDown}
       onDoubleClick={onDoubleClick}
     >
-      <SketchyRect width={el.width} height={el.height} seed={el.seed} rounded={ROUNDED_TYPES.has(el.type)} />
+      <SketchyRect
+        width={el.width}
+        height={el.height}
+        seed={el.seed}
+        rounded={ROUNDED_TYPES.has(el.type)}
+        shape={SHAPE_KIND[el.type] ?? 'rect'}
+      />
       <div
         ref={textRef}
         className="canvas-el-label"

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   Cursor02Icon,
@@ -17,6 +18,9 @@ import {
   ArrowRight05Icon,
   ArrangeByNumbersOneNineIcon,
   ParagraphIcon,
+  ComputerIcon,
+  SmartPhone01Icon,
+  Layers01Icon,
 } from '@hugeicons/core-free-icons'
 import { useStore } from '../lib/store'
 
@@ -40,24 +44,49 @@ const COMPONENTS = [
   { type: 'paragraph', label: 'Paragraph', icon: ParagraphIcon },
 ]
 
+const TABS = [
+  { id: 'web', label: 'Web', icon: ComputerIcon },
+  { id: 'mobile', label: 'Mobile', icon: SmartPhone01Icon },
+  { id: 'layers', label: 'Layers', icon: Layers01Icon },
+]
+
 export default function Sidebar() {
   const addElement = useStore((s) => s.addElement)
+  const [activeTab, setActiveTab] = useState('web')
 
   return (
     <aside className="sidebar left-sidebar">
       <h2>Components</h2>
-      <div className="component-grid">
-        {COMPONENTS.map((c) => (
+
+      <div className="sidebar-tabs">
+        {TABS.map((t) => (
           <button
-            key={c.type}
-            className="component-btn"
-            data-tooltip={c.label}
-            onClick={() => addElement(c.type)}
+            key={t.id}
+            className={`sidebar-tab${activeTab === t.id ? ' active' : ''}`}
+            data-tooltip={t.label}
+            onClick={() => setActiveTab(t.id)}
           >
-            <HugeiconsIcon icon={c.icon} size={22} strokeWidth={1.6} />
+            <HugeiconsIcon icon={t.icon} size={18} strokeWidth={1.6} />
           </button>
         ))}
       </div>
+
+      {activeTab === 'layers' ? (
+        <p className="prop-empty">Layers (Coming soon)</p>
+      ) : (
+        <div className="component-grid">
+          {COMPONENTS.map((c) => (
+            <button
+              key={c.type}
+              className="component-btn"
+              data-tooltip={c.label}
+              onClick={() => addElement(c.type)}
+            >
+              <HugeiconsIcon icon={c.icon} size={22} strokeWidth={1.6} />
+            </button>
+          ))}
+        </div>
+      )}
     </aside>
   )
 }
