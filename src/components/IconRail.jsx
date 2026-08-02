@@ -50,23 +50,26 @@ export default function IconRail() {
   }
 
   return (
-    <div className="icon-rail" ref={railRef}>
-      {TOOLS.map((t) => (
-        <button
-          key={t.id}
-          className={`rail-btn${(t.kind === 'tool' ? activeTool === t.id : openFlyout === t.flyout) ? ' active' : ''}`}
-          data-tooltip={t.label}
-          onClick={(e) => handleClick(t, e)}
-        >
-          <HugeiconsIcon icon={t.icon} size={20} strokeWidth={1.6} />
-        </button>
-      ))}
+    <>
+      <div className="icon-rail" ref={railRef}>
+        {TOOLS.map((t) => (
+          <button
+            key={t.id}
+            className={`rail-btn${(t.kind === 'tool' ? activeTool === t.id : openFlyout === t.flyout) ? ' active' : ''}`}
+            data-tooltip={t.label}
+            onClick={(e) => handleClick(t, e)}
+          >
+            <HugeiconsIcon icon={t.icon} size={20} strokeWidth={1.6} />
+          </button>
+        ))}
 
-      {openFlyout === 'pencil' && <PencilFlyout mode="pencil" top={flyoutTop} />}
-      {openFlyout === 'eraser' && <PencilFlyout mode="eraser" top={flyoutTop} />}
-      {openFlyout === 'shapes' && <ShapesFlyout top={flyoutTop} />}
-      {openFlyout === 'components' && <ComponentsFlyout top={flyoutTop} />}
-      {openFlyout === 'emoji' && <EmojiFlyout top={flyoutTop} />}
-    </div>
+        {openFlyout === 'pencil' && <PencilFlyout mode="pencil" top={flyoutTop} />}
+        {openFlyout === 'eraser' && <PencilFlyout mode="eraser" top={flyoutTop} />}
+      </div>
+
+      {openFlyout === 'shapes' && <ShapesFlyout />}
+      {openFlyout === 'components' && <ComponentsFlyout />}
+      {openFlyout === 'emoji' && <EmojiFlyout />}
+    </>
   )
 }

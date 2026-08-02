@@ -9,22 +9,14 @@ const SHAPES = [
   { type: 'shape-triangle', label: 'Triangle', icon: TriangleIcon },
 ]
 
-export default function ShapesFlyout({ top }) {
+export default function ShapesFlyout() {
   const addElement = useStore((s) => s.addElement)
-  const closeFlyout = useStore((s) => s.closeFlyout)
 
   return (
-    <div className="flyout-panel components-flyout" style={{ top }}>
+    <div className="flyout-panel components-flyout full-height">
       <div className="component-grid">
         {SHAPES.map((s) => (
-          <button
-            key={s.type}
-            className="component-btn"
-            onClick={() => {
-              addElement(s.type)
-              closeFlyout()
-            }}
-          >
+          <button key={s.type} className="component-btn" onClick={() => addElement(s.type)}>
             <span className="component-icon-box">
               <HugeiconsIcon icon={s.icon} size={20} strokeWidth={1.6} />
             </span>

@@ -48,12 +48,12 @@ const TABS = [
   { id: 'mobile', label: 'Mobile', icon: SmartPhone01Icon },
 ]
 
-export default function ComponentsFlyout({ top }) {
+export default function ComponentsFlyout() {
   const addElement = useStore((s) => s.addElement)
   const [activeTab, setActiveTab] = useState('web')
 
   return (
-    <div className="flyout-panel components-flyout" style={{ top }}>
+    <div className="flyout-panel components-flyout full-height">
       <div className="sidebar-tabs">
         {TABS.map((t) => (
           <button
