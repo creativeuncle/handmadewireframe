@@ -133,10 +133,21 @@ export default function CanvasElement({ el }) {
           letterSpacing: el.letterSpacing,
           fontWeight: el.fontWeight,
           textAlign: el.align,
+          color: isEmoji ? undefined : el.color,
+          textDecoration: el.link ? 'underline' : undefined,
+          background: !editing && el.highlight ? el.highlight : undefined,
           paddingLeft: isComment ? 22 : undefined,
         }}
       >
-        {el.text}
+        {editing || !el.list
+          ? el.text
+          : (
+            <ul className="el-list">
+              {el.text.split('\n').filter((line) => line.trim()).map((line, i) => (
+                <li key={i}>{line}</li>
+              ))}
+            </ul>
+          )}
       </div>
       {isSelected && canInteract && (
         <div className="resize-handle" onPointerDown={onResizePointerDown} />
