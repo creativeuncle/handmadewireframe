@@ -20,7 +20,6 @@ import {
   ParagraphIcon,
   ComputerIcon,
   SmartPhone01Icon,
-  Layers01Icon,
 } from '@hugeicons/core-free-icons'
 import { useStore } from '../lib/store'
 
@@ -47,17 +46,14 @@ const COMPONENTS = [
 const TABS = [
   { id: 'web', label: 'Web', icon: ComputerIcon },
   { id: 'mobile', label: 'Mobile', icon: SmartPhone01Icon },
-  { id: 'layers', label: 'Layers', icon: Layers01Icon },
 ]
 
-export default function Sidebar() {
+export default function ComponentsFlyout({ top }) {
   const addElement = useStore((s) => s.addElement)
   const [activeTab, setActiveTab] = useState('web')
 
   return (
-    <aside className="sidebar left-sidebar">
-      <h2>Components</h2>
-
+    <div className="flyout-panel components-flyout" style={{ top }}>
       <div className="sidebar-tabs">
         {TABS.map((t) => (
           <button
@@ -67,6 +63,7 @@ export default function Sidebar() {
             onClick={() => setActiveTab(t.id)}
           >
             <HugeiconsIcon icon={t.icon} size={18} strokeWidth={1.6} />
+            {t.label}
           </button>
         ))}
       </div>
@@ -85,10 +82,8 @@ export default function Sidebar() {
           ))}
         </div>
       ) : (
-        <p className="prop-empty">
-          {TABS.find((t) => t.id === activeTab).label} (Coming soon)
-        </p>
+        <p className="prop-empty">Mobile (Coming soon)</p>
       )}
-    </aside>
+    </div>
   )
 }

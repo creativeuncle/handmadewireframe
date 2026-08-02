@@ -52,8 +52,9 @@ export const useProjectsStore = create((set, get) => ({
       strokes: doc.strokes ?? [],
       pan: doc.pan ?? { x: 0, y: 0 },
       zoom: doc.zoom ?? 1,
-      selectedId: null,
+      selectedIds: [],
       activeTool: 'select',
+      history: [],
     })
     set({ currentProjectId: id, view: 'editor', saveStatus: 'saved' })
   },
