@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { useStore } from '../lib/store'
 import SketchyRect from './SketchyRect'
 
-const ROUNDED_TYPES = new Set(['button', 'card', 'image', 'video'])
+const ROUNDED_TYPES = new Set(['button', 'card', 'image', 'video', 'input', 'searchbar', 'popup'])
 
 export default function CanvasElement({ el }) {
   const updateElement = useStore((s) => s.updateElement)

@@ -6,11 +6,9 @@ import PropertiesPanel from './components/PropertiesPanel'
 function App() {
   return (
     <div className="app">
+      <Canvas />
       <Sidebar />
-      <main className="canvas-area">
-        <Canvas />
-        <Toolbar />
-      </main>
+      <Toolbar />
       <PropertiesPanel />
     </div>
   )
