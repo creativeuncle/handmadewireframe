@@ -65,7 +65,6 @@ export const useStore = create((set, get) => ({
       width: defaults.width,
       height: defaults.height,
       text: defaults.text,
-      seed: Math.floor(Math.random() * 2000),
       fontFamily: 'Kalam',
       fontSize: 16,
       lineHeight: 1.4,

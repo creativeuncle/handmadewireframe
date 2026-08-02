@@ -2,8 +2,7 @@ import { useRef, useState } from 'react'
 import { useStore } from '../lib/store'
 import SketchyRect from './SketchyRect'
 
-const ROUNDED_TYPES = new Set(['button', 'card', 'image', 'video', 'input', 'searchbar', 'popup'])
-const SHAPE_KIND = { 'shape-ellipse': 'ellipse', 'shape-triangle': 'triangle', 'shape-arrow': 'arrow', 'shape-square': 'rect' }
+const SHAPE_KIND = { 'shape-ellipse': 'ellipse', 'shape-triangle': 'triangle', 'shape-arrow': 'arrow' }
 
 export default function CanvasElement({ el }) {
   const updateElement = useStore((s) => s.updateElement)
@@ -66,6 +65,10 @@ export default function CanvasElement({ el }) {
     window.addEventListener('pointerup', onUp)
   }
 
+  const shapeKind = SHAPE_KIND[el.type]
+  const isPolygon = shapeKind === 'triangle' || shapeKind === 'arrow'
+  const borderColor = isSelected ? '#2563eb' : '#1a1a1a'
+
   return (
     <div
       className={`canvas-el${isSelected ? ' selected' : ''}`}
@@ -76,17 +79,16 @@ export default function CanvasElement({ el }) {
         width: el.width,
         height: el.height,
         cursor: canInteract ? (editing ? 'text' : 'move') : 'default',
+        border: isPolygon ? 'none' : `2px solid ${borderColor}`,
+        borderRadius: shapeKind === 'ellipse' ? '50%' : 8,
+        background: '#fff',
       }}
       onPointerDown={onPointerDown}
       onDoubleClick={onDoubleClick}
     >
-      <SketchyRect
-        width={el.width}
-        height={el.height}
-        seed={el.seed}
-        rounded={ROUNDED_TYPES.has(el.type)}
-        shape={SHAPE_KIND[el.type] ?? 'rect'}
-      />
+      {isPolygon && (
+        <SketchyRect width={el.width} height={el.height} shape={shapeKind} color={borderColor} />
+      )}
       <div
         ref={textRef}
         className="canvas-el-label"

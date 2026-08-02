@@ -71,9 +71,7 @@ export default function Sidebar() {
         ))}
       </div>
 
-      {activeTab === 'layers' ? (
-        <p className="prop-empty">Layers (Coming soon)</p>
-      ) : (
+      {activeTab === 'web' ? (
         <div className="component-grid">
           {COMPONENTS.map((c) => (
             <button
@@ -86,6 +84,10 @@ export default function Sidebar() {
             </button>
           ))}
         </div>
+      ) : (
+        <p className="prop-empty">
+          {TABS.find((t) => t.id === activeTab).label} (Coming soon)
+        </p>
       )}
     </aside>
   )
