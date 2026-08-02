@@ -32,6 +32,10 @@ const COMPONENT_DEFAULTS = {
   pagination: { width: 220, height: 40, text: '1   2   3   4   5' },
   paragraph: { width: 260, height: 90, text: 'Paragraph text goes here. Lorem ipsum dolor sit amet.' },
   text: { width: 160, height: 32, text: 'Text' },
+  'shape-arrow': { width: 160, height: 60, text: '' },
+  'shape-square': { width: 120, height: 120, text: '' },
+  'shape-ellipse': { width: 140, height: 100, text: '' },
+  'shape-triangle': { width: 130, height: 110, text: '' },
 }
 
 const MIN_ZOOM = 0.2
